@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:interior_design_project/Screens/signup_screen.dart';
 import 'package:video_player/video_player.dart';
+
+import 'login_screen.dart';
 
 class InitialScreen extends StatefulWidget {
   const InitialScreen({super.key});
@@ -82,7 +85,12 @@ class _InitialScreenState extends State<InitialScreen> {
                           ),
                           minimumSize: const Size(double.infinity, 50),
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => LoginScreen()), // Navigate to LoginScreen
+                          );
+                        },
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: const [
@@ -109,7 +117,12 @@ class _InitialScreenState extends State<InitialScreen> {
                           ),
                           minimumSize: const Size(double.infinity, 50),
                         ),
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => SignupScreen()), // Navigate to LoginScreen
+                          );
+                        },
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: const [
