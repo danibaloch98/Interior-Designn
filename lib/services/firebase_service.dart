@@ -1,5 +1,6 @@
-import 'package:interior_design_project/models/firebase_modelclass.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:interior_design_project/models/firebase_modelclass.dart';
+
 class FirestoreService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
@@ -13,26 +14,28 @@ class FirestoreService {
         return [];
       }
 
-      List<FurnitureItem> furnitureList = [];
+      List<FurnitureItem> furnitureItems = [];
 
       for (var doc in querySnapshot.docs) {
         print("🔥 Found document: ${doc.id}");
+        print("📌 Document data: ${doc.data()}"); // Debugging output
 
-        // Extract map fields (e.g., chair1, chair2, table1)
         Map<String, dynamic>? data = doc.data();
         if (data != null) {
           for (var entry in data.entries) {
             if (entry.value is Map<String, dynamic>) {
-              furnitureList.add(FurnitureItem.fromMap(entry.value));
+              print("🛠 Parsing item: ${entry.key} - ${entry.value}"); // Debugging output
+              furnitureItems.add(FurnitureItem.fromMap(entry.value));
             }
           }
         }
       }
 
-      return furnitureList;
+      return furnitureItems;
     } catch (e) {
       print("🔥 Error fetching furniture: $e");
       return [];
     }
   }
+
 }

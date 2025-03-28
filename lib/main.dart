@@ -102,7 +102,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final FirestoreService _firestoreService = FirestoreService();
-  late final Future<List<FurnitureItem>> _furnitureFuture;
+  late Future<List<FurnitureItem>> _furnitureFuture;
 
   @override
   void initState() {
@@ -161,7 +161,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      padding:
+                      EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     ),
                     icon: Icon(Icons.remove_red_eye, color: Colors.white),
                     label: Text(
@@ -177,7 +178,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Padding(
               padding: const EdgeInsets.only(left: 15.0),
               child: Text(
-                "Recommend for you",
+                "New Collection",
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
             ),
@@ -186,7 +187,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
             // TabBar
             Container(
-              margin: EdgeInsets.symmetric(horizontal: 15, vertical: 0), // Adds top & bottom spacing
+              margin: EdgeInsets.symmetric(
+                  horizontal: 15, vertical: 0), // Adds top & bottom spacing
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [Colors.white, Colors.grey.shade300], // Subtle gradient effect
@@ -202,11 +204,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ],
               ),
-           // More breathing space
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: TabBar(
-                  dividerColor:Colors.transparent ,
+                  dividerColor: Colors.transparent,
                   indicator: BoxDecoration(
                     color: Color(0xFFFFFFFF), // Dark indicator for contrast
                     borderRadius: BorderRadius.circular(25),
@@ -229,14 +230,38 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
             ),
+
             // TabBarView
             Expanded(
-              child: TabBarView(
-                children: [
-                  FutureFurnitureGrid(furnitureFuture: _furnitureFuture), // Living Room
-                  Center(child: Text("Dining Room Items")), // Dining Room Placeholder
-                  Center(child: Text("Office Room Items")), // Office Room Placeholder
-                ],
+              child: FutureBuilder<List<FurnitureItem>>(
+                future: _furnitureFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return Center(child: Text("Error loading data"));
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return Center(child: Text("No furniture found"));
+                  }
+
+                  List<FurnitureItem> furnitureItems = snapshot.data!;
+
+                  // Filtering items by category
+                  List<FurnitureItem> chairs = furnitureItems
+                      .where((item) => item.description.toLowerCase().contains("chair"))
+                      .toList();
+                  List<FurnitureItem> tables = furnitureItems
+                      .where((item) => item.description.toLowerCase().contains("table"))
+                      .toList();
+
+                  return TabBarView(
+                    children: [
+                      FurnitureGrid(items: chairs),
+                      FurnitureGrid(items: tables),
+                      Center(child: Text("AR models")),
+                    ],
+                  );
+                },
               ),
             ),
           ],
@@ -246,44 +271,36 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class FutureFurnitureGrid extends StatelessWidget {
-  final Future<List<FurnitureItem>> furnitureFuture;
 
-  FutureFurnitureGrid({required this.furnitureFuture});
+class FurnitureGrid extends StatelessWidget {
+  final List<FurnitureItem> items;
+
+  FurnitureGrid({required this.items});
 
   @override
   Widget build(BuildContext context) {
+    if (items.isEmpty) {
+      return Center(child: Text("No items available"));
+    }
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
-      child: FutureBuilder<List<FurnitureItem>>(
-        future: furnitureFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text("Error loading data"));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text("No furniture found"));
-          }
-
-          List<FurnitureItem> items = snapshot.data!;
-          return GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-              childAspectRatio: 0.75,
-            ),
-            itemCount: items.length,
-            itemBuilder: (context, index) {
-              return ProductCard(item: items[index]);
-            },
-          );
+      child: GridView.builder(
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 10,
+          mainAxisSpacing: 10,
+          childAspectRatio: 0.75,
+        ),
+        itemCount: items.length,
+        itemBuilder: (context, index) {
+          return ProductCard(item: items[index]);
         },
       ),
     );
   }
 }
+
 
 class SearchScreen extends StatelessWidget {
   const SearchScreen({super.key});
