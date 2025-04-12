@@ -1,12 +1,14 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:interior_design_project/Screens/cart_screen.dart';
+import 'package:interior_design_project/Screens/favorite_screen.dart';
+import 'package:interior_design_project/Screens/home_screen.dart';
 import 'package:interior_design_project/Screens/initial_screen.dart';
-import 'package:interior_design_project/models/firebase_modelclass.dart';
-import 'package:interior_design_project/models/listing_view_model.dart';
-import 'package:interior_design_project/services/firebase_service.dart';
+import 'package:interior_design_project/Screens/profile_screen.dart';
+
 import 'package:persistent_bottom_nav_bar/persistent_bottom_nav_bar.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 void main()async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -49,8 +51,10 @@ class _MainScreenState extends State<MainScreen> {
   List<Widget> _buildScreens() {
     return [
       const HomeScreen(),
-      const SearchScreen(),
+      FavouriteScreen(key: UniqueKey()),
+      CartScreen(key: UniqueKey(),),
       const ProfileScreen(),
+
     ];
   }
 
@@ -63,8 +67,14 @@ class _MainScreenState extends State<MainScreen> {
         inactiveColorPrimary: Colors.white70,
       ),
       PersistentBottomNavBarItem(
-        icon: const Icon(Icons.search),
-        title: "Search",
+        icon: const Icon(Icons.favorite_border),
+        title: "Favourites",
+        activeColorPrimary: Colors.white,
+        inactiveColorPrimary: Colors.white70,
+      ),
+      PersistentBottomNavBarItem(
+        icon: const Icon(Icons.shopping_cart),
+        title: "My Cart",
         activeColorPrimary: Colors.white,
         inactiveColorPrimary: Colors.white70,
       ),
@@ -85,243 +95,21 @@ class _MainScreenState extends State<MainScreen> {
       screens: _buildScreens(),
       backgroundColor: Colors.black54,
       items: _navBarsItems(),
+      stateManagement: true,
       navBarStyle: NavBarStyle.style1,
+
       handleAndroidBackButtonPress: true,
       resizeToAvoidBottomInset: true,
+      onItemSelected: (index) {
+        if (index == 1) {
+          setState(() {});
+        }
+        if (index == 2) {
+          setState(() {});
+        }
+
+      },
     );
   }
 }
 
-
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  final FirestoreService _firestoreService = FirestoreService();
-  late Future<List<FurnitureItem>> _furnitureFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _furnitureFuture = _firestoreService.fetchFurnitureItems();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        backgroundColor: Color(0xFFFAF6F3),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header Section
-            Container(
-              height: 300,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage("assets/background.jpg"),
-                  fit: BoxFit.cover,
-                ),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(30),
-                  bottomRight: Radius.circular(30),
-                ),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "explore",
-                    style: TextStyle(
-                      fontSize: 36,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    "Reflection of your style, taste,\nand personality",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.black54,
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  ElevatedButton.icon(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                      padding:
-                      EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    ),
-                    icon: Icon(Icons.remove_red_eye, color: Colors.white),
-                    label: Text(
-                      "Discover More",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            SizedBox(height: 15),
-            Padding(
-              padding: const EdgeInsets.only(left: 15.0),
-              child: Text(
-                "New Collection",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-            ),
-
-            SizedBox(height: 13),
-
-            // TabBar
-            Container(
-              margin: EdgeInsets.symmetric(
-                  horizontal: 15, vertical: 0), // Adds top & bottom spacing
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [Colors.white, Colors.grey.shade300], // Subtle gradient effect
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(35),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1), // Soft shadow
-                    blurRadius: 8,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TabBar(
-                  dividerColor: Colors.transparent,
-                  indicator: BoxDecoration(
-                    color: Color(0xFFFFFFFF), // Dark indicator for contrast
-                    borderRadius: BorderRadius.circular(25),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2), // Soft inner shadow effect
-                        blurRadius: 6,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  labelColor: Colors.black,
-                  unselectedLabelColor: Colors.black26,
-                  labelStyle: TextStyle(fontWeight: FontWeight.bold), // Make selected text bolder
-                  tabs: [
-                    Tab(text: "   Chairs   "), // Icons for better user experience
-                    Tab(text: "   Tables   "),
-                    Tab(text: "  AR Models   "),
-                  ],
-                ),
-              ),
-            ),
-
-            // TabBarView
-            Expanded(
-              child: FutureBuilder<List<FurnitureItem>>(
-                future: _furnitureFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return Center(child: Text("Error loading data"));
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return Center(child: Text("No furniture found"));
-                  }
-
-                  List<FurnitureItem> furnitureItems = snapshot.data!;
-
-                  // Filtering items by category
-                  List<FurnitureItem> chairs = furnitureItems
-                      .where((item) => item.description.toLowerCase().contains("chair"))
-                      .toList();
-                  List<FurnitureItem> tables = furnitureItems
-                      .where((item) => item.description.toLowerCase().contains("table"))
-                      .toList();
-
-                  return TabBarView(
-                    children: [
-                      FurnitureGrid(items: chairs),
-                      FurnitureGrid(items: tables),
-                      Center(child: Text("AR models")),
-                    ],
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-
-class FurnitureGrid extends StatelessWidget {
-  final List<FurnitureItem> items;
-
-  FurnitureGrid({required this.items});
-
-  @override
-  Widget build(BuildContext context) {
-    if (items.isEmpty) {
-      return Center(child: Text("No items available"));
-    }
-
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
-          childAspectRatio: 0.75,
-        ),
-        itemCount: items.length,
-        itemBuilder: (context, index) {
-          return ProductCard(item: items[index]);
-        },
-      ),
-    );
-  }
-}
-
-
-class SearchScreen extends StatelessWidget {
-  const SearchScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Search")),
-      body: const Center(child: Text("Search Screen", style: TextStyle(fontSize: 22))),
-    );
-  }
-}
-
-class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Profile")),
-      body: const Center(child: Text("Profile Screen", style: TextStyle(fontSize: 22))),
-    );
-  }
-}

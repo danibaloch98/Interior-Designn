@@ -39,3 +39,41 @@ class FirestoreService {
   }
 
 }
+class ARFirestoreService {
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
+
+  Future<List<ArModelItem>> fetchARFurnitureItems() async {
+    try {
+      QuerySnapshot<Map<String, dynamic>> querySnapshot =
+      await FirebaseFirestore.instance.collection("ArModels").get();
+
+      if (querySnapshot.docs.isEmpty) {
+        print("❌ No furniture documents found.");
+        return [];
+      }
+
+      List<ArModelItem> furnitureItems = [];
+
+      for (var doc in querySnapshot.docs) {
+        print("🔥 Found document: ${doc.id}");
+        print("📌 Document data: ${doc.data()}"); // Debugging output
+
+        Map<String, dynamic>? data = doc.data();
+        if (data != null) {
+          for (var entry in data.entries) {
+            if (entry.value is Map<String, dynamic>) {
+              print("🛠 Parsing item: ${entry.key} - ${entry.value}"); // Debugging output
+              furnitureItems.add(ArModelItem.fromMap(entry.value));
+            }
+          }
+        }
+      }
+
+      return furnitureItems;
+    } catch (e) {
+      print("🔥 Error fetching furniture: $e");
+      return [];
+    }
+  }
+
+}

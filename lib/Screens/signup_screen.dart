@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_player/video_player.dart';
-
 import 'login_screen.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -15,7 +15,6 @@ class SignupScreen extends StatefulWidget {
 class _SignupScreenState extends State<SignupScreen> {
   late VideoPlayerController _controller;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
   final TextEditingController _fullnameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
@@ -47,12 +46,12 @@ class _SignupScreenState extends State<SignupScreen> {
         password: _passwordController.text.trim(),
       );
 
-      // Navigate to Home or any other screen
+      await _saveUserData();
+
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => LoginScreen()), // Navigate to LoginScreen
+        MaterialPageRoute(builder: (context) => LoginScreen()),
       );
-
     } on FirebaseAuthException catch (e) {
       String errorMessage;
       switch (e.code) {
@@ -74,6 +73,12 @@ class _SignupScreenState extends State<SignupScreen> {
     } finally {
       setState(() => _isLoading = false);
     }
+  }
+
+  Future<void> _saveUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('username', _usernameController.text.trim());
+    await prefs.setString('email', _emailController.text.trim());
   }
 
   @override
